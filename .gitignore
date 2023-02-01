@@ -7,7 +7,7 @@ static
 media
 
 # local env files
-.env
+bot/.env
 .env.local
 .env.*.local
 
