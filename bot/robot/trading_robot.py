@@ -4,7 +4,7 @@ import operator
 from itertools import product
 from typing import Callable
 
-from bot.robot.brokers import tinkoff_connection
+from robot.brokers import tinkoff_connection
 from bot.settings import tinkoff_settings
 
 # for i in client.instruments.shares().instruments:
