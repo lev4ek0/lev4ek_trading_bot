@@ -7,7 +7,7 @@ from aiogram.utils import executor
 from aiogram.utils.executor import start_webhook
 
 from models.db import db
-from settings import tortoise_orm_settings
+from settings import TORTOISE_ORM_CONFIG
 from robot.trading_robot import Robot
 from settings import bot_settings
 
@@ -60,7 +60,7 @@ async def handle_error(message: types.Message):
 
 async def on_startup(dp):
     await bot.set_webhook(WEBHOOK_URL)
-    await db.init(config=tortoise_orm_settings)
+    await db.init(config=TORTOISE_ORM_CONFIG)
 
 
 async def on_shutdown(dp):
