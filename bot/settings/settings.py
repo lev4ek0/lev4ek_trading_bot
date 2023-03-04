@@ -19,6 +19,8 @@ class BotSettings(BaseSettings):
     WEBHOOK_PATH: str
     WEBHOOK_URL: str
     IS_POLLING: bool = False
+    WEBAPP_HOST: str
+    WEBAPP_PORT: int
 
     class Config:
         env_file = "../.env"
@@ -37,21 +39,31 @@ class TortoiseOrmSettings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
+class RedisSettings(BaseSettings):
+    REDIS_HOST: str
+    REDIS_PORT: int
+
+    class Config:
+        env_file = "../.env"
+        env_file_encoding = "utf-8"
+
+
 tinkoff_settings = TinkoffSettings()
 bot_settings = BotSettings()
 tortoise_orm_settings = TortoiseOrmSettings()
+redis_settings = RedisSettings()
 
 TORTOISE_ORM_CONFIG = {
     "connections": {
         "default": {
-            'engine': 'tortoise.backends.asyncpg',
-            'credentials': {
-                'host': tortoise_orm_settings.POSTGRES_HOST,
-                'port': tortoise_orm_settings.POSTGRES_PORT,
-                'user': tortoise_orm_settings.POSTGRES_USER,
-                'password': tortoise_orm_settings.POSTGRES_PASSWORD,
-                'database': tortoise_orm_settings.POSTGRES_DB,
-            }
+            "engine": "tortoise.backends.asyncpg",
+            "credentials": {
+                "host": tortoise_orm_settings.POSTGRES_HOST,
+                "port": tortoise_orm_settings.POSTGRES_PORT,
+                "user": tortoise_orm_settings.POSTGRES_USER,
+                "password": tortoise_orm_settings.POSTGRES_PASSWORD,
+                "database": tortoise_orm_settings.POSTGRES_DB,
+            },
         }
     },
     "apps": {

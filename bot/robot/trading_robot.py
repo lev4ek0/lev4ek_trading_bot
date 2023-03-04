@@ -50,6 +50,13 @@ class Robot:
             "BBG004731489": Instrument("Норникель", "BBG004731489", 0.1),
         }
 
+    def find_instrument(self, name):
+        client = self.connection
+        instrument = client.instruments.find_instrument(query=name)
+        return filter(
+            lambda x: x.instrument_type == "share" and x.class_code == "TQBR", instrument.instruments
+        )
+
     @functools.lru_cache()
     def get_shares(self):
         client = self.connection

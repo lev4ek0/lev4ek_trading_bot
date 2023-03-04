@@ -11,6 +11,13 @@ services:
         env_file:
             - ./bot/.env
 
+    redis:
+        image: redis:7.0.4
+        restart: always
+        expose:
+            - 6379
+        volumes:
+            - ./dbs/redis-data:/data/
 
     bot:
         build: ./bot
