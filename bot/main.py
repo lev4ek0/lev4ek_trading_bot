@@ -3,7 +3,6 @@ import logging
 from aiogram import Bot, types
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.dispatcher import Dispatcher
-from aiogram.dispatcher.webhook import SendMessage
 from aiogram.utils import executor
 from aiogram.utils.executor import start_webhook
 
@@ -26,6 +25,12 @@ dp = Dispatcher(bot)
 dp.middleware.setup(LoggingMiddleware())
 
 
+@dp.message_handler(commands=["start"])
+async def start(message: types.Message):
+    text = "Доступные команды:\n" "/shares\n" "/error\n"
+    await bot.send_message(message.chat.id, text=text)
+
+
 @dp.message_handler(commands=["shares"])
 async def handle_shares(message: types.Message):
     robot = Robot()
@@ -34,20 +39,21 @@ async def handle_shares(message: types.Message):
     text = f"Всего: {total}\n\n"
     text += "\n".join(
         map(
-            lambda x: f"{x[0]}: {x[1]}, процент - {int(x[1]/total*100)}",
+            lambda x: f"{x[0]}: {x[1]}, {round(x[1] / total * 100)}%",
             sorted(shares.items(), key=lambda x: x[1], reverse=True),
         )
     )
     await bot.send_message(message.chat.id, text=text)
 
 
-@dp.message_handler()
-async def echo(message: types.Message):
-    # Regular request
-    # await bot.send_message(message.chat.id, message.text)
+@dp.message_handler(commands=["error"])
+async def handle_error(message: types.Message):
+    robot = Robot()
+    error = robot.get_current_error()
 
-    error = Robot().get_current_error()
-    return SendMessage(message.chat.id, f"{error}")
+    await bot.send_message(
+        message.chat.id, text=f"Среднее отклонение акций от плана - {round(error * 100)}%"
+    )
 
 
 async def on_startup(dp):
