@@ -13,3 +13,5 @@ multidict==6.0.4
 python-dotenv==0.21.1
 pytz==2022.7.1
 yarl==1.8.2
+tinkoff==0.1.1
+pydantic==1.10.5
