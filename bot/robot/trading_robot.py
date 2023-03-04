@@ -5,7 +5,7 @@ from itertools import product
 from typing import Callable
 
 from robot.brokers import tinkoff_connection
-from bot.settings import tinkoff_settings
+from settings import tinkoff_settings
 
 # for i in client.instruments.shares().instruments:
 #     if 'никель' in i.name.lower():

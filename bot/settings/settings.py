@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseSettings, Field, SecretStr
 from dotenv import load_dotenv
 
@@ -11,18 +9,19 @@ class TinkoffSettings(BaseSettings):
     ACCOUNT_ID: str
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = 'utf-8'
 
 
 class BotSettings(BaseSettings):
     TOKEN: SecretStr = Field(..., env="TELEGRAM_API_TOKEN")
-    WEBHOOK_HOST: str = 'bot.lev4ek.ru'
-    WEBHOOK_PATH: Optional[str] = '/api/bot'
-    WEBHOOK_URL: str = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+    WEBHOOK_HOST: str
+    WEBHOOK_PATH: str
+    WEBHOOK_URL: str
+    IS_POLLING: bool = False
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = 'utf-8'
 
 

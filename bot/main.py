@@ -4,6 +4,7 @@ from aiogram import Bot, types
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.webhook import SendMessage
+from aiogram.utils import executor
 from aiogram.utils.executor import start_webhook
 
 from robot.trading_robot import Robot
@@ -55,12 +56,17 @@ async def on_shutdown(dp):
 
 
 if __name__ == '__main__':
-    start_webhook(
-        dispatcher=dp,
-        webhook_path=bot_settings.WEBHOOK_PATH,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
-        skip_updates=True,
-        host=WEBAPP_HOST,
-        port=WEBAPP_PORT,
-    )
+    if bot_settings.IS_POLLING:
+        executor.start_polling(
+            dp
+        )
+    else:
+        start_webhook(
+            dispatcher=dp,
+            webhook_path=bot_settings.WEBHOOK_PATH,
+            on_startup=on_startup,
+            on_shutdown=on_shutdown,
+            skip_updates=True,
+            host=WEBAPP_HOST,
+            port=WEBAPP_PORT,
+        )

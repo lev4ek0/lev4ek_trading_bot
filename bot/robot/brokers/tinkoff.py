@@ -1,6 +1,6 @@
 from tinkoff.invest import Client
 
-from bot.settings import tinkoff_settings
+from settings.settings import tinkoff_settings
 
 
 class ConnectionTinkoff:
