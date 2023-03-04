@@ -10,7 +10,7 @@ class TinkoffSettings(BaseSettings):
 
     class Config:
         env_file = "../.env"
-        env_file_encoding = 'utf-8'
+        env_file_encoding = "utf-8"
 
 
 class BotSettings(BaseSettings):
@@ -22,7 +22,7 @@ class BotSettings(BaseSettings):
 
     class Config:
         env_file = "../.env"
-        env_file_encoding = 'utf-8'
+        env_file_encoding = "utf-8"
 
 
 tinkoff_settings = TinkoffSettings()

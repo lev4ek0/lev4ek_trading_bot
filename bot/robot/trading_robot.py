@@ -43,31 +43,39 @@ class Instrument:
 class Robot:
     def __init__(self):
         self.connection = tinkoff_connection
-        self.instruments = [
-            Instrument('Газпром', 'BBG004730RP0', 0.5),
-            Instrument('ММК', 'BBG004S68507', 0.25),
-            Instrument('Северсталь', 'BBG00475K6C3', 0.15),
-            Instrument('Норникель', 'BBG004731489', 0.1),
-        ]
+        self.instruments = {
+            "BBG004730RP0": Instrument("Газпром", "BBG004730RP0", 0.5),
+            "BBG004S68507": Instrument("ММК", "BBG004S68507", 0.25),
+            "BBG00475K6C3": Instrument("Северсталь", "BBG00475K6C3", 0.15),
+            "BBG004731489": Instrument("Норникель", "BBG004731489", 0.1),
+        }
 
     @functools.lru_cache()
-    def get_total(self):
+    def get_shares(self):
         client = self.connection
         positions = client.operations.get_positions(account_id=tinkoff_settings.ACCOUNT_ID).securities
-        g = [
-            client.market_data.get_last_prices(figi=[position.figi]).last_prices[0].price.units
+        shares = {
+            self.instruments[position.figi]
+            .name: client.market_data.get_last_prices(figi=[position.figi])
+            .last_prices[0]
+            .price.units
             * position.balance
             + client.market_data.get_last_prices(figi=[position.figi]).last_prices[0].price.nano
             * position.balance
             / 1_000_000_000
             for position in positions
-        ]
-        total = functools.reduce(operator.add, g)
+        }
+        return shares
+
+    @functools.lru_cache()
+    def get_total(self):
+        shares = list(self.get_shares().values())
+        total = functools.reduce(operator.add, shares)
         return total
 
     def get_right_instrument_amount(self, instrument, lh):
         amount = self.get_total() * instrument.percent / instrument.price
-        int_amount = math.floor(amount) if lh == 'l' else math.ceil(amount)
+        int_amount = math.floor(amount) if lh == "l" else math.ceil(amount)
         return int_amount
 
     @staticmethod
@@ -78,16 +86,16 @@ class Robot:
         self, get_int_amount_func: Callable = get_actual_instrument_amount, combination=None
     ):
         error = 0
-        for counter, instrument in enumerate(self.instruments):
+        for counter, instrument in enumerate(self.instruments.values()):
             lh = None if combination is None else combination[counter]
             int_amount = get_int_amount_func(instrument, lh)
             error += abs(int_amount * instrument.price / self.get_total() - instrument.percent)
-        error /= len(self.instruments)
+        error /= len(self.instruments.values())
         return error
 
     def get_best_choice(self):
-        best_choice = (math.inf, '')
-        for combination in product('lh', repeat=4):
+        best_choice = (math.inf, "")
+        for combination in product("lh", repeat=4):
             error = self.get_current_error(self.get_right_instrument_amount, combination=combination)
             if error < best_choice[0]:
                 best_choice = (error, combination)

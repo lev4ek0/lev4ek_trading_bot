@@ -16,7 +16,7 @@ TOKEN = bot_settings.TOKEN.get_secret_value()
 WEBHOOK_URL = bot_settings.WEBHOOK_URL
 
 # webserver settings
-WEBAPP_HOST = 'bot'  # or ip
+WEBAPP_HOST = "bot"  # or ip
 WEBAPP_PORT = 3001
 
 logging.basicConfig(level=logging.INFO)
@@ -26,13 +26,28 @@ dp = Dispatcher(bot)
 dp.middleware.setup(LoggingMiddleware())
 
 
+@dp.message_handler(commands=["shares"])
+async def handle_shares(message: types.Message):
+    robot = Robot()
+    shares = robot.get_shares()
+    total = robot.get_total()
+    text = f"Всего: {total}\n\n"
+    text += "\n".join(
+        map(
+            lambda x: f"{x[0]}: {x[1]}, процент - {int(x[1]/total*100)}",
+            sorted(shares.items(), key=lambda x: x[1], reverse=True),
+        )
+    )
+    await bot.send_message(message.chat.id, text=text)
+
+
 @dp.message_handler()
 async def echo(message: types.Message):
     # Regular request
     # await bot.send_message(message.chat.id, message.text)
 
     error = Robot().get_current_error()
-    return SendMessage(message.chat.id, f'{error}')
+    return SendMessage(message.chat.id, f"{error}")
 
 
 async def on_startup(dp):
@@ -41,7 +56,7 @@ async def on_startup(dp):
 
 
 async def on_shutdown(dp):
-    logging.warning('Shutting down..')
+    logging.warning("Shutting down..")
 
     # insert code here to run it before shutdown
 
@@ -52,14 +67,12 @@ async def on_shutdown(dp):
     await dp.storage.close()
     await dp.storage.wait_closed()
 
-    logging.warning('Bye!')
+    logging.warning("Bye!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if bot_settings.IS_POLLING:
-        executor.start_polling(
-            dp
-        )
+        executor.start_polling(dp)
     else:
         start_webhook(
             dispatcher=dp,
