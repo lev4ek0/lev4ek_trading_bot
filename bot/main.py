@@ -6,10 +6,10 @@ from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.webhook import SendMessage
 from aiogram.utils.executor import start_webhook
 
-from bot.robot.trading_robot import Robot
+from robot.trading_robot import Robot
 from settings import bot_settings
 
-TOKEN = bot_settings.TOKEN
+TOKEN = bot_settings.TOKEN.get_secret_value()
 
 # webhook settings
 WEBHOOK_URL = bot_settings.WEBHOOK_URL
