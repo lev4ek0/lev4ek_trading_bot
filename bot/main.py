@@ -2,13 +2,13 @@ import logging
 
 from aiogram import Bot
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
-from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
 from aiogram.utils.executor import start_webhook
 from tortoise import run_async
 
 from handlers import register_handlers
+from middleware import setup_middleware
 from models.db import db
 from settings import TORTOISE_ORM_CONFIG
 from settings import bot_settings
@@ -26,7 +26,7 @@ storage = RedisStorage2(
 )
 
 dp = Dispatcher(bot, storage=storage)
-dp.middleware.setup(LoggingMiddleware())
+setup_middleware(dp)
 
 
 async def init_db():

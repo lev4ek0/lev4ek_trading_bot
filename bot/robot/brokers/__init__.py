@@ -1,3 +1,3 @@
-from .tinkoff import tinkoff_connection
+from .tinkoff import tinkoff_client
 
-__all__ = ("tinkoff_connection",)
+__all__ = ("tinkoff_client",)

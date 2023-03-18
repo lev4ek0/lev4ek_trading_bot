@@ -6,3 +6,9 @@ class InstrumentState(StatesGroup):
     remove = State()
     choose = State()
     proportion = State()
+
+
+class BrokerState(StatesGroup):
+    broker = State()
+    token = State()
+    account = State()

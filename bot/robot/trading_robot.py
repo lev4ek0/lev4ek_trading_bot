@@ -4,25 +4,25 @@ import operator
 from itertools import product
 from typing import Callable
 
+from tinkoff.invest import InstrumentIdType
+
 from models.models import Share
-from robot.brokers import tinkoff_connection
-from settings import tinkoff_settings
+from robot.brokers import tinkoff_client
 
 
 class Instrument:
-    def __init__(self, name, figi, percent):
+    def __init__(self, name, figi, percent, connection, account_id):
         self.name = name
         self.figi = figi
         self.percent = percent
-        self.connection = tinkoff_connection
+        self.connection = connection
+        self.account_id = account_id
 
     @property
     @functools.lru_cache()
     def amount(self):
         client = self.connection
-        positions = client.operations.get_positions(
-            account_id=tinkoff_settings.ACCOUNT_ID
-        )
+        positions = client.operations.get_positions(account_id=self.account_id)
         for instrument in positions.securities:
             if instrument.figi == self.figi:
                 return instrument.balance
@@ -43,19 +43,34 @@ class Instrument:
 
 
 class Robot:
-    def __init__(self):
-        self.connection = tinkoff_connection
+    def __init__(self, token):
+        self.client = tinkoff_client(token)
+        self.connection = self.client.connect()
         self.instruments: dict[str, Instrument] = {}
+        self.account_id = ""
+        self.token = ""
 
     @classmethod
-    async def create(cls):
-        self = Robot()
-        shares = await Share.all()
+    async def create(cls, token, account_id, user_id):
+        self = Robot(token)
+        shares = await Share.filter(user_id=user_id)
         self.instruments = {
-            i.figi: Instrument(i.name, i.figi, i.proportion) for i in shares
+            i.figi: Instrument(
+                i.name, i.figi, i.proportion, self.connection, self.account_id
+            )
+            for i in shares
         }
-        print(self.instruments)
+        self.token = token
+        self.account_id = account_id
         return self
+
+    @functools.lru_cache()
+    def find_instrument_by_figi(self, figi):
+        client = self.connection
+        instrument = client.instruments.share_by(
+            id=figi, id_type=InstrumentIdType.INSTRUMENT_ID_TYPE_FIGI
+        ).instrument
+        return instrument
 
     def find_instrument(self, name):
         client = self.connection
@@ -69,12 +84,11 @@ class Robot:
     def get_shares(self):
         client = self.connection
         positions = client.operations.get_positions(
-            account_id=tinkoff_settings.ACCOUNT_ID
+            account_id=self.account_id
         ).securities
-        print(positions)
+
         shares = {
-            self.instruments[position.figi]
-            .name: client.market_data.get_last_prices(figi=[position.figi])
+            position.figi: client.market_data.get_last_prices(figi=[position.figi])
             .last_prices[0]
             .price.units
             * position.balance

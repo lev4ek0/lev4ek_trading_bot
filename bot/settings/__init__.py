@@ -1,5 +1,4 @@
 from .settings import (
-    tinkoff_settings,
     bot_settings,
     tortoise_orm_settings,
     redis_settings,
@@ -7,7 +6,6 @@ from .settings import (
 )
 
 __all__ = (
-    "tinkoff_settings",
     "bot_settings",
     "tortoise_orm_settings",
     "redis_settings",

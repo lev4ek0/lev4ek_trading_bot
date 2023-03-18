@@ -1,11 +1,9 @@
 from tinkoff.invest import Client
 
-from settings.settings import tinkoff_settings
 
-
-class ConnectionTinkoff:
+class ClientTinkoff:
     def __init__(self, token):
-        self.token = token.get_secret_value()
+        self.token = token
         self.connection = None
 
     def connect(self):
@@ -13,7 +11,7 @@ class ConnectionTinkoff:
         return self.connection.__enter__()
 
     def close(self):
-        return self.connection.__exit__()
+        return self.connection.__exit__("a", "b", "c")
 
 
-tinkoff_connection = ConnectionTinkoff(tinkoff_settings.TOKEN).connect()
+tinkoff_client = ClientTinkoff

@@ -8,8 +8,10 @@ from aiogram.types import (
 )
 from aiogram.utils.callback_data import CallbackData
 from prettytable import PrettyTable
+from pydantic import ValidationError
+from tortoise.functions import Sum
 
-from models.models import Share
+from models.models import Share, User
 from robot.trading_robot import Robot
 from states import InstrumentState
 
@@ -23,7 +25,9 @@ async def add_instrument(message: types.Message):
 
 async def remove_instrument(message: types.Message):
     instrument_list = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    instruments = await Share.all()
+    instruments = await Share.filter(user_id=message.from_user.id).order_by(
+        "-proportion"
+    )
     for instrument in instruments:
         button = InlineKeyboardButton(instrument.name)
         instrument_list.add(button)
@@ -34,20 +38,31 @@ async def remove_instrument(message: types.Message):
 
 
 async def all_instruments(message: types.Message):
-    instruments = await Share.all().order_by("-proportion")
+    instruments = await Share.filter(user_id=message.from_user.id).order_by(
+        "-proportion"
+    )
     table = PrettyTable(["Name", "%"])
     table.align["Name"] = "l"
+    total_percent = 0
     for instrument in instruments:
         table.add_row([instrument.name, f"{instrument.proportion * 100:.2f}"])
+        total_percent += instrument.proportion
     await message.answer(
-        text="Список всех инструментов:\n\n" + f"<pre>{table}</pre>",
+        text=f"Список всех инструментов, общий процент - {round(total_percent * 100, 2):.2f}:\n\n"
+        + f"<pre>{table}</pre>",
         parse_mode=ParseMode.HTML,
     )
 
 
 async def add_instrument_name(message: types.Message, state: FSMContext):
-    robot = await Robot.create()
+    user = await User.get(id=message.from_user.id)
+    robot = await Robot.create(
+        token=user.tinkoff_api_key,
+        account_id=user.tinkoff_account_id,
+        user_id=message.from_user.id,
+    )
     instruments = robot.find_instrument(message.text)
+    robot.client.close()
     instrument_list = InlineKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     for instrument in instruments:
         button = InlineKeyboardButton(
@@ -76,15 +91,41 @@ async def add_instrument_finish(message: types.Message, state: FSMContext):
     data = await state.get_data()
     name = data.get("name")
     figi = data.get("figi")
-    await Share.create(name=name, proportion=message.text, figi=figi)
+    if not isinstance(message.text, (int, float)):
+        raise ValidationError("Значение должно быть числом")
+    if message.text < 0 or message.text > 1:
+        raise ValidationError(f"Значение должно быть в диапазоне от 0 до 1")
+    await Share.create(
+        name=name, proportion=message.text, figi=figi, user_id=message.from_user.id
+    )
     await state.finish()
     await message.answer(text=f"Инструмент '{name}' успешно добавлен")
 
 
 async def remove_instrument_finish(message: types.Message, state: FSMContext):
-    await Share.filter(name=message.text).delete()
+    await Share.filter(name=message.text, user_id=message.from_user.id).delete()
     await state.finish()
     await message.answer(text=f"Инструмент '{message.text}' успешно убран")
+
+
+async def recalculate_proportion(message: types.Message):
+    shares = (
+        await Share.filter(user_id=message.from_user.id)
+        .annotate(total_percent=Sum("proportion"))
+        .values("total_percent")
+    )
+    if not shares:
+        await message.answer(
+            "Чтобы пересчитать проценты, нужно добавить хотя бы один инструмент"
+        )
+        return
+    total_percent = shares[0]["total_percent"]
+    shares = await Share.filter(user_id=message.from_user.id)
+    for share in shares:
+        share.proportion = round(share.proportion / total_percent, 2)
+        await share.save()
+    await message.answer("Новые проценты успешно сформированы")
+    await all_instruments(message)
 
 
 def register_instruments_handlers(dp: Dispatcher):
@@ -93,6 +134,9 @@ def register_instruments_handlers(dp: Dispatcher):
         remove_instrument, commands=["remove_instrument"], state="*"
     )
     dp.register_message_handler(all_instruments, commands=["instruments"], state="*")
+    dp.register_message_handler(
+        recalculate_proportion, commands=["recalculate_proportion"], state="*"
+    )
     dp.register_message_handler(add_instrument_name, state=InstrumentState.name)
     dp.register_callback_query_handler(
         choose_instrument, instrument_data.filter(), state=InstrumentState.choose
