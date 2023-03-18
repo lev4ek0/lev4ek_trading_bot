@@ -92,13 +92,13 @@ async def add_instrument_finish(message: types.Message, state: FSMContext):
     name = data.get("name")
     figi = data.get("figi")
     try:
-        float(message.text)
+        proportion = float(message.text)
     except ValueError:
         raise ValidationError("Значение должно быть числом")
-    if message.text < 0 or message.text > 1:
+    if proportion < 0 or proportion > 1:
         raise ValidationError(f"Значение должно быть в диапазоне от 0 до 1")
     await Share.create(
-        name=name, proportion=message.text, figi=figi, user_id=message.from_user.id
+        name=name, proportion=proportion, figi=figi, user_id=message.from_user.id
     )
     await state.finish()
     await message.answer(text=f"Инструмент '{name}' успешно добавлен")
