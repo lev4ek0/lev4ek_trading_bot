@@ -91,7 +91,9 @@ async def add_instrument_finish(message: types.Message, state: FSMContext):
     data = await state.get_data()
     name = data.get("name")
     figi = data.get("figi")
-    if not isinstance(message.text, (int, float)):
+    try:
+        float(message.text)
+    except ValueError:
         raise ValidationError("Значение должно быть числом")
     if message.text < 0 or message.text > 1:
         raise ValidationError(f"Значение должно быть в диапазоне от 0 до 1")
