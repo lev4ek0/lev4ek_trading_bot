@@ -54,14 +54,14 @@ class Robot:
     async def create(cls, token, account_id, user_id):
         self = Robot(token)
         shares = await Share.filter(user_id=user_id)
+        self.token = token
+        self.account_id = account_id
         self.instruments = {
             i.figi: Instrument(
                 i.name, i.figi, i.proportion, self.connection, self.account_id
             )
             for i in shares
         }
-        self.token = token
-        self.account_id = account_id
         return self
 
     @functools.lru_cache()
