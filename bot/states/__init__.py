@@ -1,1 +1,1 @@
-from .instruments import AddInstrumentState
+from .instruments import InstrumentState
