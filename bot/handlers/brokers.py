@@ -28,7 +28,7 @@ async def all_accounts(message: types.Message):
     )
     await BrokerState.broker.set()
     await message.answer(
-        text=text,
+        text=text or "Чтобы добавить аккаунт используйте команду /add_broker",
     )
 
 
