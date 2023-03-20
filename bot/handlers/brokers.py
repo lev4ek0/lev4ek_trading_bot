@@ -5,10 +5,12 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
 )
 
+from handlers.services.errors import handle_errors
 from models.models import User
 from states import BrokerState
 
 
+@handle_errors
 async def add_broker(message: types.Message):
     brokers_list = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     for broker in ["Tinkoff"]:
@@ -21,17 +23,19 @@ async def add_broker(message: types.Message):
     )
 
 
+@handle_errors
 async def all_accounts(message: types.Message):
     user = await User.get(id=message.from_user.id)
-    text = "\n".join(
+    text = f"Уведомления {'включены' if user.is_notifications else 'выключены'}\n\n"
+    text += "\n".join(
         f"{broker}: {accounts}" for broker, accounts in user.accounts.items()
     )
-    await BrokerState.broker.set()
     await message.answer(
         text=text or "Чтобы добавить аккаунт используйте команду /add_broker",
     )
 
 
+@handle_errors
 async def choose_broker(message: types.Message, state: FSMContext):
     await state.update_data(broker=message.text)
     await BrokerState.token.set()
@@ -40,6 +44,7 @@ async def choose_broker(message: types.Message, state: FSMContext):
     )
 
 
+@handle_errors
 async def add_broker_token(message: types.Message, state: FSMContext):
     await state.update_data(token=message.text)
     await BrokerState.account.set()
@@ -48,6 +53,7 @@ async def add_broker_token(message: types.Message, state: FSMContext):
     )
 
 
+@handle_errors
 async def add_broker_finish(message: types.Message, state: FSMContext):
     data = await state.get_data()
     broker = data.get("broker")
