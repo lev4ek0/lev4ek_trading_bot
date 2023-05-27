@@ -51,8 +51,8 @@ async def on_startup(dp, is_polling=False):
             total, shares_output = await get_shares_table(user.id)
             scheduler.add_job(
                 share_changes_task,
-                trigger="interval",
-                seconds=60,
+                "interval",
+                seconds=10,
                 kwargs={
                     "bot": bot,
                     "total": [total],
