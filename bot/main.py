@@ -32,7 +32,6 @@ storage = RedisStorage2(
 dp = Dispatcher(bot, storage=storage)
 
 scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-scheduler.start()
 
 setup_middleware(dp, scheduler)
 
@@ -51,7 +50,7 @@ async def on_startup(dp, is_polling=False):
             total, shares_output = await get_shares_table(user.id)
             scheduler.add_job(
                 share_changes_task,
-                "interval",
+                trigger="interval",
                 seconds=10,
                 kwargs={
                     "bot": bot,
@@ -60,6 +59,7 @@ async def on_startup(dp, is_polling=False):
                     "user_id": user.id,
                 },
             )
+    scheduler.start()
 
     if not is_polling:
         await bot.set_webhook(bot_settings.WEBHOOK_URL)
