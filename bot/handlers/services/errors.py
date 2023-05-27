@@ -7,6 +7,7 @@ from aiogram.types import Message
 def handle_errors(func):
     async def wrapper(message_or_call: Union[Message, types.CallbackQuery], *args, **kwargs):
         try:
+            await message_or_call.answer(str(message_or_call) + str(args) + str(kwargs))
             await func(message_or_call, *args, **kwargs)
         except Exception as e:
             if hasattr(message_or_call, 'answer'):
