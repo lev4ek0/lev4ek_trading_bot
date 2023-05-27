@@ -5,7 +5,6 @@ from handlers.services.errors import handle_errors
 from models.models import User
 
 
-@handle_errors
 async def enable_notifications(message: types.Message, apscheduler: AsyncIOScheduler):
     user = await User.get(id=message.from_user.id)
     user.is_notifications = True
