@@ -26,7 +26,7 @@ async def share_changes_task(
     shares_output_value = shares_output[0]
     total_new, shares_output_new = await get_shares_table(user_id)
     is_sent_message = False
-    if abs(total_new - total_value) / total_value == 0.01:
+    if abs(total_new - total_value) / total_value < 0.01:
         total[0] = total_new
         await send_message(
             "Общая сумма на счете изменилась на 1%",
