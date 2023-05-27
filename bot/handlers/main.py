@@ -2,13 +2,11 @@ from aiogram import types, Dispatcher
 from aiogram.types import ParseMode
 from prettytable import PrettyTable
 
-from handlers.services.errors import handle_errors
 from handlers.services.instruments import get_shares_table, build_shares_table
 from models.models import User
 from robot.trading_robot import Robot
 
 
-@handle_errors
 async def start(message: types.Message):
     text = (
         "Доступные команды:\n\n"
@@ -27,7 +25,6 @@ async def start(message: types.Message):
     await message.answer(text=text)
 
 
-@handle_errors
 async def my_shares(message: types.Message):
     total, shares_output = await get_shares_table(message.from_user.id)
     text = build_shares_table(total, shares_output)
@@ -38,7 +35,6 @@ async def my_shares(message: types.Message):
     )
 
 
-@handle_errors
 async def my_error(message: types.Message):
     user = await User.get(id=message.from_user.id)
     robot = await Robot.create(

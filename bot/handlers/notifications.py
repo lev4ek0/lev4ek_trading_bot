@@ -1,7 +1,6 @@
 from aiogram import types, Dispatcher
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from handlers.services.errors import handle_errors
 from models.models import User
 
 
@@ -13,7 +12,6 @@ async def enable_notifications(message: types.Message, apscheduler: AsyncIOSched
     await message.answer(text="Уведомления успешно включены")
 
 
-@handle_errors
 async def disable_notifications(message: types.Message):
     user = await User.get(id=message.from_user.id)
     user.is_notifications = False

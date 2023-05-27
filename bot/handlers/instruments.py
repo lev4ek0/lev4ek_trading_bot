@@ -11,7 +11,6 @@ from prettytable import PrettyTable
 from pydantic import ValidationError
 from tortoise.functions import Sum
 
-from handlers.services.errors import handle_errors
 from models.models import Share, User
 from robot.trading_robot import Robot
 from states import InstrumentState
@@ -19,13 +18,11 @@ from states import InstrumentState
 instrument_data = CallbackData("instrument", "name", "figi")
 
 
-@handle_errors
 async def add_instrument(message: types.Message):
     await InstrumentState.name.set()
     await message.answer(text="Введите название инструмента")
 
 
-@handle_errors
 async def remove_instrument(message: types.Message):
     instrument_list = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     instruments = await Share.filter(user_id=message.from_user.id).order_by(
@@ -40,7 +37,6 @@ async def remove_instrument(message: types.Message):
     )
 
 
-@handle_errors
 async def all_instruments(message: types.Message):
     instruments = await Share.filter(user_id=message.from_user.id).order_by(
         "-proportion"
@@ -58,7 +54,6 @@ async def all_instruments(message: types.Message):
     )
 
 
-@handle_errors
 async def add_instrument_name(message: types.Message, state: FSMContext):
     user = await User.get(id=message.from_user.id)
     robot = await Robot.create(
@@ -83,7 +78,6 @@ async def add_instrument_name(message: types.Message, state: FSMContext):
     )
 
 
-@handle_errors
 async def choose_instrument(
     call: types.CallbackQuery, callback_data: dict, state: FSMContext
 ):
@@ -93,7 +87,6 @@ async def choose_instrument(
     await call.message.answer(text="Введите долю инструмента")
 
 
-@handle_errors
 async def add_instrument_finish(message: types.Message, state: FSMContext):
     data = await state.get_data()
     name = data.get("name")
@@ -111,14 +104,12 @@ async def add_instrument_finish(message: types.Message, state: FSMContext):
     await message.answer(text=f"Инструмент '{name}' успешно добавлен")
 
 
-@handle_errors
 async def remove_instrument_finish(message: types.Message, state: FSMContext):
     await Share.filter(name=message.text, user_id=message.from_user.id).delete()
     await state.finish()
     await message.answer(text=f"Инструмент '{message.text}' успешно убран")
 
 
-@handle_errors
 async def recalculate_proportion(message: types.Message):
     shares = (
         await Share.filter(user_id=message.from_user.id)
