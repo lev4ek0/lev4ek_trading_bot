@@ -22,6 +22,7 @@ async def send_message(text, new, old, bot, chat_id):
 async def share_changes_task(
     bot: Bot, total: list[float], shares_output: list[dict], user_id: int
 ):
+    print(1)
     total_value = total[0]
     shares_output_value = shares_output[0]
     total_new, shares_output_new = await get_shares_table(user_id)

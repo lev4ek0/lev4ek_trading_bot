@@ -47,6 +47,7 @@ async def on_startup(dp, is_polling=False):
     users = await User.filter(is_notifications=True)
     for user in users:
         if user.can_trade:
+            print(2)
             total, shares_output = await get_shares_table(user.id)
             scheduler.add_job(
                 share_changes_task,
