@@ -16,9 +16,12 @@ router = create_router()
 @router.message(Command("shares"))
 async def shares(message: types.Message, session: AsyncSession):
     select_accounts = select(Account).where(Account.user_id == message.from_user.id)
-    accounts = await session.execute(select_accounts)
-    account: Account
-    for account in accounts.scalars():
+    accounts = list((await session.execute(select_accounts)).scalars())
+    if not accounts:
+        await message.answer(
+            text="Воспользуйтесь командой /add_broker, чтобы привязать брокера к аккаунту",
+        )
+    for account in accounts:
         broker_client = get_broker_client(account)
         broker_account = await broker_client.show_account()
         await message.answer(
