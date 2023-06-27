@@ -1,13 +1,13 @@
-from .settings import (
+from settings.settings import (
+    SQLALCHEMY_ORM_CONFIG,
     bot_settings,
-    tortoise_orm_settings,
     redis_settings,
-    TORTOISE_ORM_CONFIG,
+    sqlalchemy_orm_settings,
 )
 
 __all__ = (
     "bot_settings",
-    "tortoise_orm_settings",
+    "sqlalchemy_orm_settings",
     "redis_settings",
-    "TORTOISE_ORM_CONFIG",
+    "SQLALCHEMY_ORM_CONFIG",
 )

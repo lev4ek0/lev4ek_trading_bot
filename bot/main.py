@@ -1,92 +1,54 @@
+import asyncio
 import logging
 
-from aiogram import Bot
-from aiogram.contrib.fsm_storage.redis import RedisStorage2
-from aiogram.dispatcher import Dispatcher
-from aiogram.utils import executor
-from aiogram.utils.executor import start_webhook
+from aiogram import Bot, Dispatcher
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from tortoise import run_async
-
-from handlers import register_handlers
-from handlers.services.instruments import get_shares_table
-from middleware import setup_middleware
-from models.db import db
-from models.models import User
-from settings import TORTOISE_ORM_CONFIG
+from database import Account, Base, engine
+from handlers import broker_router, shares_router, start_router
 from settings import bot_settings
-from settings import redis_settings
-from tasks.share_changes import share_changes_task
+from sqlalchemy import select
+from tasks.periodic import share_changes_task
+from utils.broker_client import get_broker_client
 
 TOKEN = bot_settings.TOKEN.get_secret_value()
 
-
 logging.basicConfig(level=logging.INFO)
-
 bot = Bot(token=TOKEN)
-storage = RedisStorage2(
-    host=redis_settings.REDIS_HOST,
-    port=redis_settings.REDIS_PORT,
-)
-
-dp = Dispatcher(bot, storage=storage)
+dp = Dispatcher()
+dp.include_routers(start_router, broker_router, shares_router)
 
 scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
 
-setup_middleware(dp, scheduler)
 
+async def on_startup():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-async def init_db():
-    await db.init(config=TORTOISE_ORM_CONFIG)
-
-
-async def on_startup(dp, is_polling=False):
-    await init_db()
-
-    users = await User.filter(is_notifications=True)
-    for user in users:
-        if user.can_trade:
-            total, shares_output = await get_shares_table(user.id)
+        select_accounts = select(Account).filter()
+        accounts = await conn.execute(select_accounts)
+        for account in accounts.all():
+            broker_client = get_broker_client(account)
+            broker_account = await broker_client.show_account()
             scheduler.add_job(
                 share_changes_task,
                 trigger="interval",
-                seconds=60,
+                seconds=10,
                 kwargs={
                     "bot": bot,
-                    "total": [total],
-                    "shares_output": [shares_output],
-                    "user_id": user.id,
+                    "total": [broker_account.balance],
+                    "account": account,
                 },
             )
+
     scheduler.start()
 
-    if not is_polling:
-        await bot.set_webhook(bot_settings.WEBHOOK_URL)
 
-
-async def on_shutdown(dp):
-    logging.warning("Shutting down..")
-
-    await bot.delete_webhook()
-    await db.close_connections()
-    await dp.storage.close()
-    await dp.storage.wait_closed()
-
-    logging.warning("Bye!")
+async def main():
+    if is_polling := bot_settings.IS_POLLING:
+        await on_startup()
+        await dp.start_polling(bot)
+    # todo: webhooks
 
 
 if __name__ == "__main__":
-    register_handlers(dp)
-    if is_polling := bot_settings.IS_POLLING:
-        run_async(on_startup(dp, is_polling))
-        executor.start_polling(dp)
-    else:
-        start_webhook(
-            dispatcher=dp,
-            webhook_path=bot_settings.WEBHOOK_PATH,
-            on_startup=on_startup,
-            on_shutdown=on_shutdown,
-            skip_updates=True,
-            host=bot_settings.WEBAPP_HOST,
-            port=bot_settings.WEBAPP_PORT,
-        )
+    asyncio.run(main())

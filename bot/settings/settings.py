@@ -1,5 +1,5 @@
-from pydantic import BaseSettings, Field, SecretStr
 from dotenv import load_dotenv
+from pydantic import BaseSettings, Field, SecretStr
 
 load_dotenv()
 
@@ -18,7 +18,7 @@ class BotSettings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
-class TortoiseOrmSettings(BaseSettings):
+class SQLAlchemyOrmSettings(BaseSettings):
     POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
@@ -40,26 +40,14 @@ class RedisSettings(BaseSettings):
 
 
 bot_settings = BotSettings()
-tortoise_orm_settings = TortoiseOrmSettings()
+sqlalchemy_orm_settings = SQLAlchemyOrmSettings()
 redis_settings = RedisSettings()
 
-TORTOISE_ORM_CONFIG = {
-    "connections": {
-        "default": {
-            "engine": "tortoise.backends.asyncpg",
-            "credentials": {
-                "host": tortoise_orm_settings.POSTGRES_HOST,
-                "port": tortoise_orm_settings.POSTGRES_PORT,
-                "user": tortoise_orm_settings.POSTGRES_USER,
-                "password": tortoise_orm_settings.POSTGRES_PASSWORD,
-                "database": tortoise_orm_settings.POSTGRES_DB,
-            },
-        }
-    },
-    "apps": {
-        "models": {
-            "models": ["models.base", "aerich.models"],
-            "default_connection": "default",
-        },
-    },
+SQLALCHEMY_ORM_CONFIG = {
+    "url": f"postgresql+asyncpg://{sqlalchemy_orm_settings.POSTGRES_USER}:"
+    f"{sqlalchemy_orm_settings.POSTGRES_PASSWORD}@"
+    f"{sqlalchemy_orm_settings.POSTGRES_HOST}:"
+    f"{sqlalchemy_orm_settings.POSTGRES_PORT}/"
+    f"{sqlalchemy_orm_settings.POSTGRES_DB}",
+    "echo": True,
 }

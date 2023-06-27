@@ -34,7 +34,6 @@ services:
         volumes:
             - ./bot:/bot
         command: bash -c "
-            aerich upgrade &&
             python3 main.py"
         env_file:
             - ./bot/.env
