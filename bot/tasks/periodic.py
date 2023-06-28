@@ -29,7 +29,7 @@ def get_diff_in_percents(new, old):
 
 
 async def share_changes_task(bot: Bot, map_accounts_money: dict[str, int]):
-    session = await get_db_session()
+    session = await anext(get_db_session())
     select_accounts = select(Account).filter()
     accounts = await session.execute(select_accounts)
     for account in accounts.all():
