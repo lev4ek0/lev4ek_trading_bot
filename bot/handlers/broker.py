@@ -3,9 +3,9 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from database import Account, BrokerType
+from database.connection import PostgresConnection
 from handlers.common import create_router
 from sqlalchemy import insert, select, delete
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from handlers.states import BrokerRemoveState, BrokerAddState
 from utils.broker_client import get_broker_client
@@ -15,10 +15,10 @@ router = create_router()
 
 @router.message(Command("remove_broker"))
 async def remove_broker(
-    message: types.Message, state: FSMContext, session: AsyncSession
+    message: types.Message, state: FSMContext, session: PostgresConnection
 ):
     select_accounts = select(Account).where(Account.user_id == message.from_user.id)
-    accounts = await session.execute(select_accounts)
+    accounts = await session.select(select_accounts)
     accounts_list, accounts_mapper = [], {}
     accounts = list(accounts.scalars())
     for account in accounts:
@@ -51,14 +51,13 @@ async def remove_broker(
 
 @router.message(BrokerRemoveState.broker)
 async def remove_broker_finish(
-    message: types.Message, state: FSMContext, session: AsyncSession
+    message: types.Message, state: FSMContext, session: PostgresConnection
 ):
     data = await state.get_data()
     accounts_mapper = data.get("accounts_mapper")
     account_id = accounts_mapper[message.text]
     delete_account = delete(Account).where(Account.broker_account_id == account_id)
     await session.execute(delete_account)
-    await session.commit()
     await state.clear()
     await message.answer(
         text="Аккаунт успешно удален", reply_markup=ReplyKeyboardRemove()
@@ -117,7 +116,7 @@ async def add_broker_token(message: types.Message, state: FSMContext):
 
 @router.message(BrokerAddState.account)
 async def add_broker_finish(
-    message: types.Message, state: FSMContext, session: AsyncSession
+    message: types.Message, state: FSMContext, session: PostgresConnection
 ):
     data = await state.get_data()
     broker = data.get("broker")
@@ -131,7 +130,6 @@ async def add_broker_finish(
         broker_account_id=accounts_mapper.get(message.text) or 0,
     )
     await session.execute(insert_account)
-    await session.commit()
     await state.clear()
     await message.answer(
         text=f"Аккаунт '{message.text}' был успешно добавлен",

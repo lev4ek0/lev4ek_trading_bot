@@ -2,8 +2,7 @@ from typing import Any, Awaitable, Callable, Dict
 
 from aiogram import BaseMiddleware
 from aiogram.types import Message
-from database import get_db_session
-from sqlalchemy.ext.asyncio import AsyncSession
+from database import postgres_connection
 
 
 class SessionMiddleware(BaseMiddleware):
@@ -13,6 +12,6 @@ class SessionMiddleware(BaseMiddleware):
         event: Message,
         data: Dict[str, Any],
     ) -> Any:
-        session: AsyncSession = await anext(get_db_session())
+        session = postgres_connection
         data["session"] = session
         return await handler(event, data)

@@ -2,8 +2,6 @@ from typing import Any, Awaitable, Callable, Dict
 
 from aiogram import BaseMiddleware
 from aiogram.types import Message
-from database import get_db_session
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class ErrorsMiddleware(BaseMiddleware):

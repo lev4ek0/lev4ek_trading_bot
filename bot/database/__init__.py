@@ -1,4 +1,4 @@
-from database.connection import Base, engine, get_db_session
+from database.connection import Base, postgres_connection
 from database.models import Account, BrokerType, Chat, History, Order, Share, User
 
 __all__ = (
@@ -10,6 +10,5 @@ __all__ = (
     "Share",
     "Order",
     "BrokerType",
-    "engine",
-    "get_db_session",
+    "postgres_connection",
 )

@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from aiogram import Bot, Dispatcher
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from database import Base, engine
+from database import postgres_connection
 from handlers import broker_router, shares_router, start_router, notifications_router
 from settings import bot_settings
 from tasks.periodic import share_changes_task
@@ -19,13 +19,13 @@ scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
 
 
 async def on_startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    await postgres_connection.connect()
+    await postgres_connection.create_all()
 
     scheduler.add_job(
         share_changes_task,
         trigger="interval",
-        seconds=10,
+        seconds=60,
         kwargs={
             "bot": bot,
             "map_accounts_money": defaultdict(int),

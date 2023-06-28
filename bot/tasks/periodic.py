@@ -3,7 +3,7 @@ from aiogram import Bot
 from aiogram.enums import ParseMode
 from sqlalchemy import select
 
-from database import Account, get_db_session
+from database import Account, postgres_connection
 from utils.broker_client import get_broker_client
 
 emoji = {
@@ -29,9 +29,9 @@ def get_diff_in_percents(new, old):
 
 
 async def share_changes_task(bot: Bot, map_accounts_money: dict[str, int]):
-    session = await anext(get_db_session())
+    session = postgres_connection
     select_accounts = select(Account).where(Account.is_notifications == True)
-    accounts = await session.execute(select_accounts)
+    accounts = await session.select(select_accounts)
     for account in accounts.scalars():
         total_value = map_accounts_money[account.id]
         broker_client = get_broker_client(
