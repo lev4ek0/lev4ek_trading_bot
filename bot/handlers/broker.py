@@ -86,7 +86,8 @@ async def choose_broker(message: types.Message, state: FSMContext):
     await state.update_data(broker=message.text)
     await state.set_state(BrokerAddState.token)
     await message.answer(
-        text="Введите токен вашего брокера", reply_markup=ReplyKeyboardRemove()
+        text="Введите токен вашего брокера. Чтобы его получить, перейдите по ссылке https://www.tinkoff.ru/invest/settings/api/ , затем выпустите токен с полным доступом",
+        reply_markup=ReplyKeyboardRemove(),
     )
 
 

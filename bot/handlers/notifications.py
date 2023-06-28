@@ -51,7 +51,9 @@ async def shares(message: types.Message, session: PostgresConnection):
 
 
 @router.callback_query(Text(startswith="turn"))
-async def turn_off_notifications(callback: types.CallbackQuery, session: PostgresConnection):
+async def turn_off_notifications(
+    callback: types.CallbackQuery, session: PostgresConnection
+):
     account_id = callback.data.split("_")[1]
     update_account = (
         update(Account)

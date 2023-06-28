@@ -12,9 +12,7 @@ class UserMiddleware(BaseMiddleware):
         full_name = user.full_name
         chat_id = chat.id if chat else user.id
         chat_type = chat.type if chat else "private"
-        ans = await self.session.select(
-            select(User).where(User.telegram_id == user_id)
-        )
+        ans = await self.session.select(select(User).where(User.telegram_id == user_id))
         if not ans.scalars().first():
             insert_user = insert(User).values(telegram_id=user_id, full_name=full_name)
             await self.session.execute(insert_user)
