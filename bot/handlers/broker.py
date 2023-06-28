@@ -128,10 +128,10 @@ async def add_broker_finish(
         user_id=user_id,
         broker_type=BrokerType(broker.lower()).name,
         api_key=token,
-        broker_account_id=accounts_mapper.get(message.text) or 0,
+        broker_account_id=accounts_mapper.get(message.text) or "0",
     )
-    await session.execute(insert_account)
     await state.clear()
+    await session.execute(insert_account)
     await message.answer(
         text=f"Аккаунт '{message.text}' был успешно добавлен",
         reply_markup=ReplyKeyboardRemove(),

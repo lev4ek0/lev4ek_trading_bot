@@ -2,14 +2,14 @@ from settings import SQLALCHEMY_ORM_CONFIG
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     async_sessionmaker,
-    create_async_engine,
+    create_async_engine, AsyncConnection,
 )
 from sqlalchemy.orm import DeclarativeBase
 
 
 class PostgresConnection:
     def __init__(self):
-        self.connection = None
+        self.connection: AsyncConnection
         self.engine = None
 
     async def connect(self):
@@ -21,9 +21,13 @@ class PostgresConnection:
         return await self.connection.execute(stmt)
 
     async def execute(self, *stmts):
-        for stmt in stmts:
-            await self.connection.execute(stmt)
-        await self.connection.commit()
+        try:
+            for stmt in stmts:
+                await self.connection.execute(stmt)
+            await self.connection.commit()
+        except Exception as e:
+            await self.connection.rollback()
+            raise e
 
     async def create_all(self):
         async with self.engine.begin() as conn:
