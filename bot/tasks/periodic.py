@@ -32,7 +32,7 @@ async def share_changes_task(bot: Bot, map_accounts_money: dict[str, int]):
     session = await anext(get_db_session())
     select_accounts = select(Account).filter()
     accounts = await session.execute(select_accounts)
-    for account in accounts.all():
+    for account in accounts.scalars():
         total_value = map_accounts_money[account.id]
         broker_client = get_broker_client(account)
         broker_account = await broker_client.show_account()
