@@ -1,4 +1,5 @@
-from brokers.common import Account, BaseClient, Instrument
+from brokers.common import BaseClient
+from brokers.dataclasses import Account, Instrument
 from tinkoff.invest import AsyncClient, GetAccountsResponse, InstrumentIdType
 
 

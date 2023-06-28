@@ -1,6 +1,5 @@
-from typing import List
-
-from brokers.common import Account, BaseClient
+from brokers.common import BaseClient
+from brokers.dataclasses import Account
 
 
 class BrokerClient:
