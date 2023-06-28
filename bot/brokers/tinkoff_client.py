@@ -4,15 +4,19 @@ from tinkoff.invest import AsyncClient, GetAccountsResponse, InstrumentIdType
 
 
 class TinkoffClient(BaseClient):
-    async def get_account(self):
+    async def accounts_list(self) -> list[Account]:
+        async with AsyncClient(self.token) as client:
+            response: GetAccountsResponse = await client.users.get_accounts()
+
+        return [Account(account_id=acc.id, name=acc.name) for acc in response.accounts]
+
+    async def get_account(self, account_id):
         account, shares = None, []
 
         async with AsyncClient(self.token) as client:
             response: GetAccountsResponse = await client.users.get_accounts()
-            securities = (
-                await client.operations.get_positions(account_id=self.account_id)
-            ).securities
-            for share in securities:
+            positions = await client.operations.get_positions(account_id=account_id)
+            for share in positions.securities:
                 figi, amount = share.figi, share.balance
                 last_prices_response = await client.market_data.get_last_prices(
                     figi=[figi]
@@ -34,7 +38,17 @@ class TinkoffClient(BaseClient):
                         name=instrument.name,
                     )
                 )
-        res_account = filter(lambda acc: acc.id == self.account_id, response.accounts)
+            money = positions.money
+            if money:
+                shares.append(
+                    Instrument(
+                        instrument_id="Money",
+                        money=money[0].units + money[0].nano / 1_000_000_000,
+                        amount=1,
+                        name="Деньги",
+                    )
+                )
+        res_account = filter(lambda acc: acc.id == account_id, response.accounts)
         if acc := next(res_account, None):
             account = Account(acc.id, acc.name, shares)
         return account

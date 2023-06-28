@@ -1,9 +1,10 @@
-import enum
 from typing import List
 
 from database.connection import Base
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from database.enums import CurrencyType, BrokerType
 
 
 class User(Base):
@@ -34,10 +35,6 @@ class History(Base):
     command: Mapped[str] = mapped_column(String(255))
 
 
-class BrokerType(enum.Enum):
-    TINKOFF = "tinkoff"
-
-
 class Account(Base):
     __tablename__ = "accounts"
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -46,6 +43,7 @@ class Account(Base):
     broker_type: Mapped["BrokerType"]
     api_key: Mapped[str] = mapped_column(String(255))
     broker_account_id: Mapped[str] = mapped_column(String(255))
+    is_notifications: Mapped[bool] = mapped_column(default=True)
     orders: Mapped[List["Order"]] = relationship(back_populates="account")
     __table_args__ = (
         UniqueConstraint(
@@ -62,12 +60,6 @@ class Share(Base):
     code: Mapped[str] = mapped_column(String(32))
     step: Mapped[float] = mapped_column()
     orders: Mapped[List["Order"]] = relationship(back_populates="share")
-
-
-class CurrencyType(enum.Enum):
-    RUB = "rub"
-    EUR = "eur"
-    USD = "usd"
 
 
 class Order(Base):

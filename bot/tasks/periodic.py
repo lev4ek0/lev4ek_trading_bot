@@ -30,15 +30,17 @@ def get_diff_in_percents(new, old):
 
 async def share_changes_task(bot: Bot, map_accounts_money: dict[str, int]):
     session = await anext(get_db_session())
-    select_accounts = select(Account).filter()
+    select_accounts = select(Account).where(Account.is_notifications == True)
     accounts = await session.execute(select_accounts)
     for account in accounts.scalars():
         total_value = map_accounts_money[account.id]
-        broker_client = get_broker_client(account)
-        broker_account = await broker_client.show_account()
+        broker_client = get_broker_client(
+            account.broker_type.value.capitalize(), account.api_key
+        )
+        broker_account = await broker_client.show_account(account.broker_account_id)
         total_new = broker_account.balance
         is_sent_message = False
-        if (diff := get_diff_in_percents(total_new, total_value)) > 0.0001:
+        if (diff := get_diff_in_percents(total_new, total_value)) > 0.01:
             map_accounts_money[account.id] = total_new
             await send_message(
                 f"Общая сумма на счете изменилась на {diff * 100:.2f}%",

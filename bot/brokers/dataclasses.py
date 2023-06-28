@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
 from prettytable import PrettyTable
 
@@ -16,18 +16,22 @@ class Instrument:
 class Account:
     account_id: str
     name: str
-    instruments: List[Instrument]
+    instruments: Optional[List[Instrument]] = None
 
     @property
     def balance(self):
-        return sum(instrument.money for instrument in self.instruments)
+        return sum(
+            instrument.money for instrument in self.instruments if self.instruments
+        )
 
     def __str__(self):
         text = f"Аккаунт: {self.name}, всего: {self.balance:.2f}\n\n"
         table = PrettyTable(["Name", "Money", "%"])
         table.align["Name"] = "l"
 
-        for share in sorted(self.instruments, key=lambda x: x.money, reverse=True):
+        for share in sorted(
+            self.instruments or [], key=lambda x: x.money, reverse=True
+        ):
             table.add_row(
                 [
                     share.name[:9],

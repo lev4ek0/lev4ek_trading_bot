@@ -19,8 +19,10 @@ async def shares(message: types.Message, session: AsyncSession):
             text="Воспользуйтесь командой /add_broker, чтобы привязать брокера к аккаунту",
         )
     for account in accounts:
-        broker_client = get_broker_client(account)
-        broker_account = await broker_client.show_account()
+        broker_client = get_broker_client(
+            account.broker_type.value.capitalize(), account.api_key
+        )
+        broker_account = await broker_client.show_account(account.broker_account_id)
         await message.answer(
             text=str(broker_account),
             parse_mode=ParseMode.HTML,

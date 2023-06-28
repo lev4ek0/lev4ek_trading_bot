@@ -11,14 +11,8 @@ async def cmd_start(message: types.Message):
         "Доступные команды:\n\n"
         "/help\n"
         "/add_broker\n"
-        # "/accounts\n"
-        # "/enable_notifications\n"
-        # "/disable_notifications\n"
-        # "/instruments\n"
-        # "/add_instrument\n"
-        # "/remove_instrument\n"
-        # "/recalculate_proportion\n"
+        "/remove_broker\n"
+        "/manage_notifications\n"
         "/shares\n"
-        # "/error\n"
     )
     await message.answer(text=text)
