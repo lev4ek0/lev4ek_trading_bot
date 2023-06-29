@@ -1,6 +1,6 @@
 from brokers import BrokerClient
 from brokers.common import BaseClient
-from utils import get_broker_class
+from utils.import_class import get_broker_class
 
 
 def get_broker_client(broker_name: str, token: str):

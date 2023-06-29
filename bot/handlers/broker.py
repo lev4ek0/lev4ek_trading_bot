@@ -7,7 +7,7 @@ from database.connection import PostgresConnection
 from handlers.common import create_router
 from handlers.states import BrokerAddState, BrokerRemoveState
 from sqlalchemy import delete, insert, select
-from utils.broker_client import get_broker_client
+from utils import get_broker_client
 
 router = create_router()
 
