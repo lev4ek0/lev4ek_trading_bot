@@ -1,8 +1,10 @@
+from redis.client import Redis
 from settings import SQLALCHEMY_ORM_CONFIG
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
+    AsyncConnection,
     async_sessionmaker,
-    create_async_engine, AsyncConnection,
+    create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase
 
@@ -34,7 +36,23 @@ class PostgresConnection:
             await conn.run_sync(Base.metadata.create_all)
 
 
+class RedisConnection:
+    def __init__(self):
+        self.connection = None
+
+    def connect(self):
+        redis = Redis(host="localhost", port=6379, db=2, decode_responses=True)
+        self.connection = redis
+
+    def __setitem__(self, key, value):
+        return self.connection.set(key, value)
+
+    def __getitem__(self, item):
+        return self.connection.get(item)
+
+
 postgres_connection = PostgresConnection()
+redis_connection = RedisConnection()
 
 
 class Base(AsyncAttrs, DeclarativeBase):

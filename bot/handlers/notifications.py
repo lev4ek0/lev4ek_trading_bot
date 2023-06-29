@@ -1,6 +1,5 @@
 from aiogram import types
 from aiogram.filters import Command, Text
-
 from database import Account
 from database.connection import PostgresConnection
 from handlers import create_router

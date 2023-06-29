@@ -1,9 +1,9 @@
 import emoji
 from aiogram import Bot
 from aiogram.enums import ParseMode
-from sqlalchemy import select
-
 from database import Account, postgres_connection
+from database.connection import redis_connection
+from sqlalchemy import select
 from utils.broker_client import get_broker_client
 
 emoji = {
@@ -28,20 +28,23 @@ def get_diff_in_percents(new, old):
         return bool(new or old)
 
 
-async def share_changes_task(bot: Bot, map_accounts_money: dict[str, int]):
+async def share_changes_task(bot: Bot):
     session = postgres_connection
     select_accounts = select(Account).where(Account.is_notifications == True)
     accounts = await session.select(select_accounts)
     for account in accounts.scalars():
-        total_value = map_accounts_money[account.id]
+        total_value = redis_connection[account.id]
         broker_client = get_broker_client(
             account.broker_type.value.capitalize(), account.api_key
         )
         broker_account = await broker_client.show_account(account.broker_account_id)
         total_new = broker_account.balance
-        is_sent_message = False
+        if not total_value:
+            redis_connection[account.id] = total_new
+            continue
+        is_sent_message, total_value = False, float(total_value)
         if (diff := get_diff_in_percents(total_new, total_value)) > 0.01:
-            map_accounts_money[account.id] = total_new
+            redis_connection[account.id] = total_new
             await send_message(
                 f"Общая сумма на счете изменилась на {diff * 100:.2f}%",
                 new=total_new,

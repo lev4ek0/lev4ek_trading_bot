@@ -1,10 +1,9 @@
 from typing import List
 
 from database.connection import Base
+from database.enums import BrokerType, CurrencyType
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from database.enums import CurrencyType, BrokerType
 
 
 class User(Base):
