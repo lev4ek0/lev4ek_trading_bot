@@ -1,5 +1,5 @@
 from redis.client import Redis
-from settings import SQLALCHEMY_ORM_CONFIG
+from settings import SQLALCHEMY_ORM_CONFIG, redis_settings
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncConnection,
@@ -41,7 +41,7 @@ class RedisConnection:
         self.connection = None
 
     def connect(self):
-        redis = Redis(host="localhost", port=6379, db=2, decode_responses=True)
+        redis = Redis(host=redis_settings.REDIS_HOST, port=redis_settings.REDIS_PORT, db=2, decode_responses=True)
         self.connection = redis
 
     def __setitem__(self, key, value):
