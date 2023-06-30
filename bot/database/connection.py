@@ -44,6 +44,11 @@ class RedisConnection:
         redis = Redis(host=redis_settings.REDIS_HOST, port=redis_settings.REDIS_PORT, db=2, decode_responses=True)
         self.connection = redis
 
+    def set_expire(self, key, value, ttl=60):
+        resp = self.connection.set(key, value)
+        self.connection.expire(key, ttl)
+        return resp
+
     def __setitem__(self, key, value):
         return self.connection.set(key, value)
 
