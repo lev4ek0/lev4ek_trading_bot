@@ -6,6 +6,7 @@ __pycache__/
 static
 media
 
+sources
 # local env files
 bot/.env
 .env.local

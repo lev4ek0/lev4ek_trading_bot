@@ -4,7 +4,7 @@ from aiogram.enums import ParseMode
 from database import Account, postgres_connection
 from database.connection import redis_connection
 from sqlalchemy import select
-from utils.broker_client import get_broker_client
+from utils import get_broker_client
 
 emoji = {
     "good": emoji.emojize(":green_circle:"),

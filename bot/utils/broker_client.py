@@ -1,5 +1,4 @@
-from brokers import BrokerClient
-from brokers.common import BaseClient
+from brokers import BaseClient, BrokerClient
 from utils.import_class import get_broker_class
 
 

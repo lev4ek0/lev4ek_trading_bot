@@ -1,8 +1,8 @@
 from brokers.common import BaseClient
 from brokers.dataclasses import Account, Instrument
+from database import redis_connection
 from tinkoff.invest import AsyncClient, GetAccountsResponse, InstrumentIdType
-
-from database.connection import redis_connection
+from utils.money import get_money
 
 
 class TinkoffClient(BaseClient):
@@ -17,13 +17,9 @@ class TinkoffClient(BaseClient):
         cur_price = redis_connection[price_prefix + figi]
         if cur_price:
             return float(cur_price)
-        last_prices_response = await client.market_data.get_last_prices(
-            figi=[figi]
-        )
+        last_prices_response = await client.market_data.get_last_prices(figi=[figi])
         quotation = last_prices_response.last_prices[0].price
-        price = (
-            quotation.units + quotation.nano / 1_000_000_000
-        )
+        price = get_money(quotation)
         redis_connection.set_expire(price_prefix + figi, price)
         return price
 
@@ -64,7 +60,7 @@ class TinkoffClient(BaseClient):
                 shares.append(
                     Instrument(
                         instrument_id="Money",
-                        money=money[0].units + money[0].nano / 1_000_000_000,
+                        money=get_money(money[0]),
                         amount=1,
                         name="Деньги",
                     )

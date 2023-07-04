@@ -5,6 +5,7 @@ load_dotenv()
 
 
 class BotSettings(BaseSettings):
+    TINKOFF_API_TOKEN: SecretStr = Field(..., env="TINKOFF_API_TOKEN")
     TOKEN: SecretStr = Field(..., env="TELEGRAM_API_TOKEN")
     WEBHOOK_HOST: str
     WEBHOOK_PATH: str

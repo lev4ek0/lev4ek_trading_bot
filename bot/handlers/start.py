@@ -1,6 +1,6 @@
 from aiogram import types
 from aiogram.filters import Command
-from handlers.common import create_router
+from handlers import create_router
 
 router = create_router()
 

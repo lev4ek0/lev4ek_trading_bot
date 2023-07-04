@@ -35,8 +35,8 @@ class Account:
             table.add_row(
                 [
                     share.name[:9],
-                    share.money,
-                    f"{share.money / self.balance * 100:.2f}",
+                    f"{share.money:.0f}",
+                    f"{share.money / self.balance * 100:.1f}",
                 ]
             )
 

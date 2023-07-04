@@ -1,5 +1,6 @@
-from database.connection import Base, postgres_connection
-from database.models import Account, BrokerType, Chat, History, Order, Share, User
+from database.connection import Base, postgres_connection, redis_connection
+from database.enums import BrokerType, CurrencyType
+from database.models import Account, Chat, History, Order, Share, User
 
 __all__ = (
     "Base",
@@ -10,5 +11,7 @@ __all__ = (
     "Share",
     "Order",
     "BrokerType",
+    "CurrencyType",
     "postgres_connection",
+    "redis_connection",
 )

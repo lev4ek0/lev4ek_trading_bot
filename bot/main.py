@@ -6,11 +6,10 @@ from aiogram.fsm.storage.redis import RedisStorage
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler_di import ContextSchedulerDecorator
-from database import postgres_connection
-from database.connection import redis_connection
+from database import postgres_connection, redis_connection
 from handlers import broker_router, notifications_router, shares_router, start_router
 from settings import bot_settings, redis_settings
-from tasks.periodic import share_changes_task
+from tasks import share_changes_task, store_data
 
 
 async def on_startup(scheduler):
@@ -21,10 +20,19 @@ async def on_startup(scheduler):
 
     scheduler.add_job(
         share_changes_task,
-        trigger="interval",
-        seconds=60,
+        trigger="cron",
+        minute="*",
         replace_existing=True,
         id="share_changes_task",
+    )
+
+    scheduler.add_job(
+        store_data,
+        trigger="cron",
+        minute=54,
+        hour=23,
+        replace_existing=True,
+        id="store_data",
     )
 
     scheduler.start()

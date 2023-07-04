@@ -57,7 +57,7 @@ class Share(Base):
     broker_type: Mapped["BrokerType"]
     name: Mapped[str] = mapped_column(String(32))
     code: Mapped[str] = mapped_column(String(32))
-    step: Mapped[float] = mapped_column()
+    step: Mapped[float] = mapped_column(nullable=True)
     orders: Mapped[List["Order"]] = relationship(back_populates="share")
 
 

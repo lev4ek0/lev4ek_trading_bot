@@ -4,7 +4,7 @@ from database import Account
 from database.connection import PostgresConnection
 from handlers import create_router
 from sqlalchemy import select, update
-from utils.broker_client import get_broker_client
+from utils import get_broker_client
 
 router = create_router()
 

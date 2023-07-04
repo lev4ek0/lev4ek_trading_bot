@@ -3,6 +3,7 @@ from handlers.common import create_router
 from handlers.notifications import router as notifications_router
 from handlers.shares import router as shares_router
 from handlers.start import router as start_router
+from handlers.states import BrokerAddState, BrokerRemoveState
 
 __all__ = (
     "start_router",
@@ -10,4 +11,6 @@ __all__ = (
     "create_router",
     "shares_router",
     "notifications_router",
+    "BrokerAddState",
+    "BrokerRemoveState",
 )
