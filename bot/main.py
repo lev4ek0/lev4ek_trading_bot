@@ -29,8 +29,8 @@ async def on_startup(scheduler):
     scheduler.add_job(
         store_data,
         trigger="cron",
-        minute=54,
-        hour=23,
+        minute=0,
+        hour=1,
         replace_existing=True,
         id="store_data",
     )
