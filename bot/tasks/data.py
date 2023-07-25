@@ -32,7 +32,7 @@ async def store_data_task(bot: Bot):
                 os.makedirs(f"sources/{figi}")
             except FileExistsError:
                 pass
-            for month in range(1, 60):
+            for month in range(1, 30):
                 moment = now()
                 start = (moment - relativedelta(months=month + 1)).replace(
                     day=1, hour=0, minute=0, second=0, microsecond=0
