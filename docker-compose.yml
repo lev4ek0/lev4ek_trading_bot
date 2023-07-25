@@ -16,6 +16,7 @@ services:
     redis:
         image: redis:7.0.4
         restart: always
+        command: redis-server --appendonly yes --replica-read-only no
         expose:
             - 6379
         ports:

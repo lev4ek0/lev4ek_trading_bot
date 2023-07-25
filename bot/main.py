@@ -7,7 +7,7 @@ from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler_di import ContextSchedulerDecorator
 from database import postgres_connection, redis_connection
-from handlers import broker_router, notifications_router, shares_router, start_router
+from handlers import broker_router, notifications_router, shares_router, start_router, speciality_router
 from settings import bot_settings, redis_settings
 from tasks import share_changes_task, store_data
 
@@ -47,7 +47,7 @@ async def main():
         f"redis://{redis_settings.REDIS_HOST}:{redis_settings.REDIS_PORT}/0"
     )
     dp = Dispatcher(storage=storage)
-    dp.include_routers(start_router, broker_router, shares_router, notifications_router)
+    dp.include_routers(start_router, broker_router, shares_router, notifications_router, speciality_router)
     jobstores = {
         "default": RedisJobStore(
             jobs_key="dispatched_trips_jobs",

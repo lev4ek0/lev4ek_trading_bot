@@ -9,3 +9,12 @@ class BrokerAddState(StatesGroup):
 
 class BrokerRemoveState(StatesGroup):
     broker = State()
+
+
+class SpecialityAddState(StatesGroup):
+    link = State()
+    snils = State()
+
+
+class SpecialityRemoveState(StatesGroup):
+    link = State()
