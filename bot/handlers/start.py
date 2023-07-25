@@ -18,6 +18,7 @@ async def cmd_start(message: types.Message):
         "/manage_notifications\n"
         "/shares\n"
         "/add_speciality\n"
+        "/my_specialities\n"
         "/remove_speciality\n"
     )
     await message.answer(text=text)

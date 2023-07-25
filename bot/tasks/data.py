@@ -13,7 +13,7 @@ from tinkoff.invest.utils import now
 from utils import get_money
 
 
-async def store_data(bot: Bot):
+async def store_data_task(bot: Bot):
     TOKEN = bot_settings.TINKOFF_API_TOKEN.get_secret_value()
     async with AsyncClient(TOKEN) as client:
         try:

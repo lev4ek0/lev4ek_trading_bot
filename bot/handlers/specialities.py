@@ -46,6 +46,27 @@ async def add_broker_finish(
     await session.execute(insert_speciality)
     await message.answer(
         text=f"Специальность '{link}' была успешно добавлена",
+        disable_web_page_preview=True,
+    )
+
+
+@router.message(Command("my_specialities"))
+async def my_specialities(message: types.Message, session: PostgresConnection):
+    select_specialities = select(Speciality).where(Speciality.user_id == message.from_user.id)
+    specialities = await session.select(select_specialities)
+    specialities = list(specialities.scalars())
+    specialities_list = []
+    for speciality in specialities:
+        text = f"Ссылка: {speciality.link}, СНИЛС: {speciality.snils}"
+        specialities_list.append(text)
+    if not specialities:
+        return await message.answer(
+            text="У вас нет специализаций. Чтобы ее добавить, введите /add_speciality",
+        )
+    specs = '\n'.join(specialities_list)
+    await message.answer(
+        text=f"Ваши специализации: \n{specs}",
+        disable_web_page_preview=True,
     )
 
 
