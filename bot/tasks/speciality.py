@@ -60,6 +60,7 @@ async def speciality_task(bot: Bot):
                         place += 1
                 prev_place = redis_connection[f"{speciality.user_id}_{speciality.link}_place"]
                 if not prev_place:
+                    prev_place = my_place
                     redis_connection[f"{speciality.user_id}_{speciality.link}_place"] = my_place
                 if int(prev_place) != my_place:
                     redis_connection[f"{speciality.user_id}_{speciality.link}_place"] = my_place
@@ -74,6 +75,7 @@ async def speciality_task(bot: Bot):
                         )
                 prev_score = redis_connection[f"{speciality.user_id}_{speciality.link}_score"]
                 if not prev_score:
+                    prev_score = my_score
                     redis_connection[f"{speciality.user_id}_{speciality.link}_score"] = my_score
                 if prev_score != my_score:
                     redis_connection[f"{speciality.user_id}_{speciality.link}_score"] = my_score
