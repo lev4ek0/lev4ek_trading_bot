@@ -1,10 +1,13 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from database import Speciality
 from database.connection import Base
 from database.enums import BrokerType, CurrencyType
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+
+if TYPE_CHECKING:
+    from database import Speciality
 
 
 class User(Base):
