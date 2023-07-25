@@ -1,5 +1,6 @@
 from typing import List
 
+from database import Speciality
 from database.connection import Base
 from database.enums import BrokerType, CurrencyType
 from sqlalchemy import ForeignKey, String, UniqueConstraint
@@ -15,6 +16,7 @@ class User(Base):
     is_banned: Mapped[bool] = mapped_column(default=False)
     accounts: Mapped[List["Account"]] = relationship(back_populates="user")
     histories: Mapped[List["History"]] = relationship(back_populates="user")
+    specialities: Mapped[List["Speciality"]] = relationship(back_populates="user")
 
 
 class Chat(Base):
