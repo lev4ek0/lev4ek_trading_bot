@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from database import Speciality
-from database.connection import PostgresConnection
+from database.connection import PostgresConnection, redis_connection
 from handlers import create_router
 from sqlalchemy import select, insert, delete
 
@@ -57,7 +57,11 @@ async def my_specialities(message: types.Message, session: PostgresConnection):
     specialities = list(specialities.scalars())
     specialities_list = []
     for speciality in specialities:
+        place = redis_connection[f"{speciality.user_id}_{speciality.link}_place"]
         text = f"Ссылка: {speciality.link}, СНИЛС: {speciality.snils}"
+        if place:
+            total_places = redis_connection[f"{speciality.link}_place"]
+            text += f", Место: {place}/{total_places}"
         specialities_list.append(text)
     if not specialities:
         return await message.answer(
