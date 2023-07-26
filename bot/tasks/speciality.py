@@ -34,8 +34,8 @@ async def speciality_task(bot: Bot):
         for text, link in zip(texts, links):
             soup = BeautifulSoup(text, "html.parser")
             r = soup.select('div[class*="RatingPage_rating__placesBlock"]')
-            places = redis_connection[f"{speciality.link}_place"] or int(list(list(r[0])[0])[2])
-            redis_connection[f"{speciality.link}_place"] = places
+            places = redis_connection[f"{link}_place"] or int(list(list(r[0])[0])[2])
+            redis_connection[f"{link}_place"] = places
             r = soup.select('div[class*="RatingPage_rating__text"]')
             program = str(list(list(r[0])[0])[0])
             r = soup.select('div[class*="RatingPage_table__item"]')
