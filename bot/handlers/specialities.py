@@ -30,6 +30,10 @@ async def add_link(message: types.Message, state: FSMContext):
             await message.answer(
                 text=f"Ссылка недействительна: status: {ans.status}, text: {await ans.text()}",
             )
+            await state.clear()
+            await message.answer(
+                text=f"Специальность не была добавлена. Попробуйте команду /add_speciality еще раз.",
+            )
             return
     if not message.text.startswith("https://abit.itmo.ru/ranking/master/"):
         await message.answer(
