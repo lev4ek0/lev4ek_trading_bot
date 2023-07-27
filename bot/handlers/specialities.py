@@ -24,11 +24,17 @@ async def add_speciality(message: types.Message, state: FSMContext):
 
 @router.message(SpecialityAddState.link)
 async def add_link(message: types.Message, state: FSMContext):
+    if not message.text.startswith("https://"):
+        await message.answer(
+            text="Ссылка должна быть вида 'https://abit.itmo.ru/ranking/master/{budget/contract}/id'.\n\n"
+                 "Ее можно найти здесь: https://abit.itmo.ru/rankings/master",
+        )
+        return
     async with aiohttp.ClientSession() as sess:
         ans = await sess.get(message.text)
         if ans.status != 200:
             await message.answer(
-                text=f"Ссылка недействительна: status: {ans.status}, text: {await ans.text()}",
+                text=f"Ссылка недействительна: status: {ans.status}",
             )
             await state.clear()
             await message.answer(
