@@ -51,7 +51,7 @@ class Account(Base):
     orders: Mapped[List["Order"]] = relationship(back_populates="account")
     __table_args__ = (
         UniqueConstraint(
-            "broker_type", "api_key", "broker_account_id", name="_duplicates"
+            "broker_type", "api_key", "broker_account_id", name="account_duplicates"
         ),
     )
 

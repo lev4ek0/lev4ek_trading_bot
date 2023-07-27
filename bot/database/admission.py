@@ -13,6 +13,6 @@ class Speciality(Base):
     snils: Mapped[str] = mapped_column(String(255))
     __table_args__ = (
         UniqueConstraint(
-            "user_id", "link", name="_duplicates"
+            "user_id", "link", name="speciality_duplicates"
         ),
     )
