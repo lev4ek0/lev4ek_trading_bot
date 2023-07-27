@@ -1,3 +1,4 @@
+import aiohttp
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -23,6 +24,13 @@ async def add_speciality(message: types.Message, state: FSMContext):
 
 @router.message(SpecialityAddState.link)
 async def add_link(message: types.Message, state: FSMContext):
+    async with aiohttp.ClientSession() as sess:
+        ans = await sess.get(message.text)
+        if ans.status != 200:
+            await message.answer(
+                text=f"Ссылка недействительна: status: {ans.status}, text: {await ans.text()}",
+            )
+            return
     if not message.text.startswith("https://abit.itmo.ru/ranking/master/"):
         await message.answer(
             text="Ссылка должна быть вида 'https://abit.itmo.ru/ranking/master/{budget/contract}/id'.\n\n"
