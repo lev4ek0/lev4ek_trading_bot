@@ -23,6 +23,12 @@ async def add_speciality(message: types.Message, state: FSMContext):
 
 @router.message(SpecialityAddState.link)
 async def add_link(message: types.Message, state: FSMContext):
+    if not message.text.startswith("https://abit.itmo.ru/ranking/master/"):
+        await message.answer(
+            text="Ссылка должна быть вида 'https://abit.itmo.ru/ranking/master/{budget/contract}/id'.\n\n"
+                 "Ее можно найти здесь: https://abit.itmo.ru/rankings/master",
+        )
+        return
     await state.update_data(link=message.text)
     await state.set_state(SpecialityAddState.snils)
     await message.answer(
@@ -40,7 +46,7 @@ async def add_broker_finish(
     insert_speciality = insert(Speciality).values(
         user_id=user_id,
         link=link,
-        snils=message.text,
+        snils="".join(c for c in message.text if c.isnumeric()),
     )
     await state.clear()
     await session.execute(insert_speciality)

@@ -23,10 +23,10 @@ async def speciality_task(bot: Bot):
     specialities = await session.select(select_specialities)
     links = {k: list(g) for k, g in groupby(specialities.scalars(), attrgetter('link'))}
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as sess:
         tasks = []
         for link in links:
-            tasks.append(asyncio.create_task(session.get(link)))
+            tasks.append(asyncio.create_task(sess.get(link)))
         responses = await asyncio.gather(*tasks)
         texts = [await r.text() for r in responses]
         from bs4 import BeautifulSoup
@@ -34,6 +34,8 @@ async def speciality_task(bot: Bot):
         for text, link in zip(texts, links):
             soup = BeautifulSoup(text, "html.parser")
             r = soup.select('div[class*="RatingPage_rating__placesBlock"]')
+            if not r:
+                continue
             places = redis_connection[f"{link}_place"] or int(list(list(r[0])[0])[2])
             redis_connection[f"{link}_place"] = places
             r = soup.select('div[class*="RatingPage_rating__text"]')
