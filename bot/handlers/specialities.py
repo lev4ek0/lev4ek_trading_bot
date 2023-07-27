@@ -26,7 +26,7 @@ async def add_speciality(message: types.Message, state: FSMContext):
 async def add_link(message: types.Message, state: FSMContext):
     if not message.text.startswith("https://"):
         await message.answer(
-            text="Ссылка должна быть вида 'https://abit.itmo.ru/ranking/master/{budget/contract}/id'.\n\n"
+            text="Ссылка должна быть вида 'https://abit.itmo.ru/ranking/master/{budget/contract}/{id}'.\n\n"
                  "Ее можно найти здесь: https://abit.itmo.ru/rankings/master",
         )
         return
