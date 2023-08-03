@@ -12,7 +12,7 @@ class TinkoffClient(BaseClient):
 
         return [Account(account_id=acc.id, name=acc.name) for acc in response.accounts]
 
-    async def get_last_price(self, figi, client):
+    async def get_last_price(self, figi, client, instrument_type):
         price_prefix = "pp"
         cur_price = redis_connection[price_prefix + figi]
         if cur_price:
@@ -20,6 +20,10 @@ class TinkoffClient(BaseClient):
         last_prices_response = await client.market_data.get_last_prices(figi=[figi])
         quotation = last_prices_response.last_prices[0].price
         price = get_money(quotation)
+        if instrument_type == 'bond':
+            bond = await client.instruments.bond_by(id_type=InstrumentIdType.INSTRUMENT_ID_TYPE_FIGI, id=figi)
+            ncd = get_money(bond.instrument.aci_value)
+            price = price * 10 + ncd
         redis_connection.set_expire(price_prefix + figi, price)
         return price
 
@@ -44,10 +48,8 @@ class TinkoffClient(BaseClient):
             positions = await client.operations.get_positions(account_id=account_id)
             for share in positions.securities:
                 figi, amount = share.figi, share.balance
-                price = await self.get_last_price(figi, client)
+                price = await self.get_last_price(figi, client, share.instrument_type)
                 name = await self.get_instrument_name(figi, client)
-                if share.instrument_type == 'bond':
-                    amount *= 10
                 money = price * amount
                 shares.append(
                     Instrument(
