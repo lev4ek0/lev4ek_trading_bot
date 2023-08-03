@@ -46,6 +46,8 @@ class TinkoffClient(BaseClient):
                 figi, amount = share.figi, share.balance
                 price = await self.get_last_price(figi, client)
                 name = await self.get_instrument_name(figi, client)
+                if share.instrument_type == 'bond':
+                    amount *= 10
                 money = price * amount
                 shares.append(
                     Instrument(
