@@ -1,14 +1,14 @@
 from aiogram import types
 from aiogram.filters import Command
 from handlers import create_router
-from prometheus_client import Summary
-from prometheus_async.aio import time
+from prometheus_client import Counter
+
+
+c = Counter('ok rps', 'Description of counter')
+
 
 router = create_router()
 
-REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
-
-@time(REQUEST_TIME)
 @router.message(Command("start", "help"))
 async def cmd_start(message: types.Message):
     text = (
@@ -26,3 +26,4 @@ async def cmd_start(message: types.Message):
         "/remove_speciality\n"
     )
     await message.answer(text=text)
+    c.inc()
