@@ -32,6 +32,7 @@ services:
             - 3001
         ports:
             - "3001:3001"
+            - "9091:9091"
         depends_on:
             - db
         volumes:
