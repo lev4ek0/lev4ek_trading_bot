@@ -21,6 +21,7 @@ magic-filter==1.0.9
 multidict==6.0.4
 prettytable==3.8.0
 prometheus-client==0.17.1
+prometheus-async==22.2.0
 pydantic==1.10.9
 python-dotenv==1.0.0
 pytz==2023.3

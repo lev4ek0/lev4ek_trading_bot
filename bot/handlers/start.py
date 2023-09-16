@@ -2,12 +2,13 @@ from aiogram import types
 from aiogram.filters import Command
 from handlers import create_router
 from prometheus_client import Summary
+from prometheus_async.aio import time
 
 router = create_router()
 
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
 
-@REQUEST_TIME.time()
+@time(REQUEST_TIME)
 @router.message(Command("start", "help"))
 async def cmd_start(message: types.Message):
     text = (
