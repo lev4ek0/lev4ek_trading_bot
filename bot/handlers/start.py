@@ -1,10 +1,10 @@
 from aiogram import types
+from aiogram.filters import Command
 from handlers import create_router
-from prometheus_client import CollectorRegistry, Counter, push_to_gateway
+from prometheus_client import Counter
 
 
-registry = CollectorRegistry()
-c = Counter('ok rps', 'Description of counter', registry=registry)
+c = Counter('ok_rps', 'Description of counter')
 
 
 router = create_router()
@@ -27,4 +27,3 @@ async def cmd_start(message: types.Message):
     )
     await message.answer(text=text)
     c.inc()
-    push_to_gateway('localhost:9091', job='batchA', registry=registry)
