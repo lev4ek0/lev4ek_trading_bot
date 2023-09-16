@@ -1,12 +1,13 @@
 from aiogram import types
 from aiogram.filters import Command
-
-from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
-
 from handlers import create_router
+from prometheus_client import Summary
 
 router = create_router()
 
+REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
+
+@REQUEST_TIME.time()
 @router.message(Command("start", "help"))
 async def cmd_start(message: types.Message):
     text = (
@@ -24,7 +25,3 @@ async def cmd_start(message: types.Message):
         "/remove_speciality\n"
     )
     await message.answer(text=text)
-    registry = CollectorRegistry()
-    g = Gauge('job_last_success_unixtime', 'Last time a batch job successfully finished', registry=registry)
-    g.set_to_current_time()
-    push_to_gateway('lev4ek.ru:9090', job='batchA', registry=registry)

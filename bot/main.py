@@ -10,6 +10,7 @@ from database import postgres_connection, redis_connection
 from handlers import broker_router, notifications_router, shares_router, start_router, speciality_router
 from settings import bot_settings, redis_settings
 from tasks import share_changes_task, store_data_task
+from prometheus_client import start_http_server
 
 
 async def on_startup(scheduler):
@@ -68,4 +69,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    start_http_server(9091)
     asyncio.run(main())
