@@ -20,5 +20,5 @@ class MetricsMiddleware(BaseMiddleware):
             ok_rps.inc()
         except Exception as e:
             bad_rps.inc()
-            raise e
+            raise
         return result
