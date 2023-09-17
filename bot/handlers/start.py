@@ -21,5 +21,5 @@ async def cmd_start(message: types.Message):
         "/my_specialities\n"
         "/remove_speciality\n"
     )
-    raise KeyError
+    raise KeyError("key error")
     await message.answer(text=text)
