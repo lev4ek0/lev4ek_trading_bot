@@ -1,13 +1,9 @@
 from aiogram import types
 from aiogram.filters import Command
 from handlers import create_router
-from prometheus_client import Counter
-
-
-c = Counter('ok_rps', 'Description of counter')
-
 
 router = create_router()
+
 
 @router.message(Command("start", "help"))
 async def cmd_start(message: types.Message):
@@ -25,5 +21,5 @@ async def cmd_start(message: types.Message):
         "/my_specialities\n"
         "/remove_speciality\n"
     )
+    raise KeyError
     await message.answer(text=text)
-    c.inc()
